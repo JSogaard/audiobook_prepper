@@ -16,7 +16,7 @@ def parse_paths(paths: click.Path) -> list[str]:
     Returns:
         list[str]: Sorted list of file paths.
     """
-    path_list: list[str] = list(paths)
+    path_list: list[str] = list(paths)  # type: ignore[call-overload]
     # Initialize an empty list to store file paths
     files: list = []
     # If there is only one path and it contains a wildcard, use glob to find files
