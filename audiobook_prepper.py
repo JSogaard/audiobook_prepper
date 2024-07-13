@@ -44,6 +44,7 @@ def update_tag(file: str, tag: str, value: str) -> None:
         tag (str): ID3 tag to update.
         value (str): New value for the ID3 tag.
     """
+    id3: EasyID3
     try:
         id3 = EasyID3(file)
     except ID3NoHeaderError:
