@@ -1,3 +1,4 @@
+from pprint import pprint
 import click
 import glob
 from mutagen.easyid3 import EasyID3
@@ -31,8 +32,8 @@ def parse_paths(paths: click.Path) -> list[str]:
             else:
                 files.append(path)
 
-    sorted_files: list = sorted(list(files), key=click.format_filename)
-    return sorted_files
+    # Sort list, remove duplicates and return
+    return sorted(list(set(files)))
 
 
 def update_tag(file: str, tag: str, value: str) -> None:
@@ -64,6 +65,14 @@ def cli() -> None:
     pass
     # TODO Read up on Click groups
 
+@cli.command(name="showtags")
+@click.argument("path", type=click.Path(exists=True), nargs=1)
+def show_tags(path: str):
+    try:
+        id3 = EasyID3(path)
+        click.echo(pprint(dict(id3)))
+    except Exception as e:
+                click.echo(f"An error occured while processing the file: {path} - {e}")
 
 @cli.command(name="number")
 @click.argument("paths", type=click.Path(), nargs=-1)
