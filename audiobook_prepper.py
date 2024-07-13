@@ -65,6 +65,7 @@ def cli() -> None:
     pass
     # TODO Read up on Click groups
 
+
 @cli.command(name="showtags")
 @click.argument("path", type=click.Path(exists=True), nargs=1)
 def show_tags(path: str):
@@ -72,7 +73,8 @@ def show_tags(path: str):
         id3 = EasyID3(path)
         click.echo(pprint(dict(id3)))
     except Exception as e:
-                click.echo(f"An error occured while processing the file: {path} - {e}")
+        click.echo(f"An error occured while processing the file: {path} - {e}")
+
 
 @cli.command(name="number")
 @click.argument("paths", type=click.Path(), nargs=-1)
@@ -122,20 +124,23 @@ def chapter_number(naming_scheme: str, paths: click.Path, start: int) -> None:
 @cli.command(name="changeauthor")
 @click.argument("author_name", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
-def change_author(author_name: str, paths: click.Path):
-    
+def change_author(author_name: str, paths: click.Path) -> None:
     files: list[str] = parse_paths(paths)
-    
+
     file: str
     for file in files:
         update_tag(file, "author", author_name)
 
-    # TODO Tests
 
+@cli.command(name="changenarrator")
+@click.argument("narrator_name", type=str, nargs=1)
+@click.argument("paths", type=click.Path(), nargs=-1)
+def change_narrator(narrator_name, paths) -> None:
+    files: list[str] = parse_paths(paths)
 
-def change_narrator():
-    ...
-    # TODO Narrator/composer function
+    file: str
+    for file in files:
+        update_tag(file, "composer", narrator_name)
 
 
 def combine_files():
