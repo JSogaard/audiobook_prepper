@@ -1,4 +1,4 @@
-from pprint import pprint
+from pprint import pformat
 import click
 import glob
 from mutagen.easyid3 import EasyID3
@@ -19,7 +19,7 @@ def parse_paths(paths: click.Path) -> list[str]:
     """
     path_list: list[str] = list(paths)  # type: ignore[call-overload]
     # Initialize an empty list to store file paths
-    files: list = []
+    files: list[str] = []
     # If there is only one path and it contains a wildcard, use glob to find files
     if len(path_list) == 1 and ("*" in path_list[0] or "?" in path_list[0]):
         files = glob.glob(path_list[0])
@@ -68,10 +68,10 @@ def cli() -> None:
 
 @cli.command(name="showtags")
 @click.argument("path", type=click.Path(exists=True), nargs=1)
-def show_tags(path: str):
+def show_tags(path: str) -> None:
     try:
-        id3 = EasyID3(path)
-        click.echo(pprint(dict(id3)))
+        id3: EasyID3 = EasyID3(path)
+        click.echo(pformat(dict(id3)))
     except Exception as e:
         click.echo(f"An error occured while processing the file: {path} - {e}")
 
@@ -135,18 +135,18 @@ def change_author(author_name: str, paths: click.Path) -> None:
 @cli.command(name="changenarrator")
 @click.argument("narrator_name", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
-def change_narrator(narrator_name, paths) -> None:
+def change_narrator(narrator_name: str, paths: click.Path) -> None:
     files: list[str] = parse_paths(paths)
 
     file: str
     for file in files:
         update_tag(file, "composer", narrator_name)
 
-def change_tag():
+def change_tag() -> None:
     raise NotImplementedError
     # TODO Change tag function
 
-def combine_files():
+def combine_files() -> None:
     raise NotImplementedError
     # TODO Combine files function
 
