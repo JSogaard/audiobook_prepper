@@ -109,9 +109,18 @@ def chapter_number(naming_scheme: str, paths: click.Path, start: int) -> None:
         update_tag(file, "title", new_title)
 
 
-def change_author():
-    ...
-    # TODO Author function
+@cli.command(name="changeauthor")
+@click.argument("author_name", type=str, nargs=1)
+@click.argument("paths", type=click.Path(), nargs=-1)
+def change_author(author_name: str, paths: click.Path):
+    
+    files: list[str] = parse_paths(paths)
+    
+    file: str
+    for file in files:
+        update_tag(file, "author", author_name)
+
+    # TODO Tests
 
 
 def change_narrator():
