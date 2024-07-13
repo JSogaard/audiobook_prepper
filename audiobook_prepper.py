@@ -142,9 +142,12 @@ def change_narrator(narrator_name, paths) -> None:
     for file in files:
         update_tag(file, "composer", narrator_name)
 
+def change_tag():
+    raise NotImplementedError
+    # TODO Change tag function
 
 def combine_files():
-    ...
+    raise NotImplementedError
     # TODO Combine files function
 
 
