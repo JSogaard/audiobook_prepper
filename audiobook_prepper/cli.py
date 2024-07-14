@@ -1,11 +1,17 @@
+import os
 from pprint import pformat
 import click
 import glob
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3NoHeaderError
+from tabulate import tabulate
 
 
-def parse_paths(paths: click.Path) -> list[str]:
+class NoFileInput(Exception):
+    pass
+
+
+def _parse_paths(paths: list[str]) -> list[str]:
     """
     Parses the provided paths and returns a sorted list of files matching the paths.
 
@@ -17,6 +23,9 @@ def parse_paths(paths: click.Path) -> list[str]:
     Returns:
         list[str]: Sorted list of file paths.
     """
+    if not paths:
+        raise NoFileInput
+
     path_list: list[str] = list(paths)  # type: ignore[call-overload]
     # Initialize an empty list to store file paths
     files: list[str] = []
@@ -36,7 +45,7 @@ def parse_paths(paths: click.Path) -> list[str]:
     return sorted(list(set(files)))
 
 
-def update_tag(file: str, tag: str, value: str) -> None:
+def _update_tag(file: str, tag: str, value: str) -> None:
     """
     Update the ID3 tag of a given audio file.
 
@@ -66,20 +75,55 @@ def cli() -> None:
     # TODO Read up on Click groups
 
 
-@cli.command(name="showtags")
-@click.argument("path", type=click.Path(exists=True), nargs=1)
-def show_tags(path: str) -> None:
-    try:
-        id3: EasyID3 = EasyID3(path)
-        click.echo(pformat(dict(id3)))
-    except Exception as e:
-        click.echo(f"An error occured while processing the file: {path} - {e}")
+TAGS: list[str] = [
+    "title",
+    "album",
+    "artist",
+    "albumartist",
+    "composer",
+    "discnumber",
+    "tracknumber",
+]
+
+
+@cli.command(name="show-tags")
+@click.argument("paths", type=click.Path(), nargs=-1)
+def show_tags(paths: list[str]) -> None:
+    files: list[str] = _parse_paths(paths)
+    table: list[list[str]] = [
+        [
+            "File",
+            "Title",
+            "Album",
+            "Author",
+            "Album Artist",
+            "Narrator",
+            "Disc",
+            "Track",
+        ]
+    ]
+    file: str
+    row: list[str]
+    for file in files:
+        row = [os.path.basename(file)]
+        try:
+            id3: EasyID3 = EasyID3(file)
+        except Exception as e:
+            click.echo(f"An error occured while processing the file: {file} - {e}")
+            return
+
+        for tag in TAGS:
+            row.append(id3[tag][0])
+        table.append(row)
+
+    click.echo("Give the terminal windows some width to display table properly.")
+    click.echo(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 
 @cli.command(name="number")
 @click.argument("paths", type=click.Path(), nargs=-1)
 @click.option("--start", type=int, default=1, show_default=True)
-def number_files(paths: click.Path, start: int) -> None:
+def number_files(paths: list[str], start: int) -> None:
     """
     Update the track number tag of each file with a sequential number,
     starting from the specified value.
@@ -89,19 +133,19 @@ def number_files(paths: click.Path, start: int) -> None:
         start (int): The starting number for the track numbering.
     """
 
-    files: list[str] = parse_paths(paths)
+    files: list[str] = _parse_paths(paths)
 
     number: int
     file: str
     for number, file in enumerate(files, start=start):
-        update_tag(file, "tracknumber", str(number))
+        _update_tag(file, "tracknumber", str(number))
 
 
-@cli.command(name="chapternumber")
+@cli.command(name="chapter-number")
 @click.argument("naming_scheme", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
 @click.option("--start", type=int, default=1, show_default=True)
-def chapter_number(naming_scheme: str, paths: click.Path, start: int) -> None:
+def chapter_number(naming_scheme: str, paths: list[str], start: int) -> None:
     """
     Update the title tag of each file with a name based on a naming scheme,
     replacing '%n' with a sequential number, starting from specified value.
@@ -112,39 +156,41 @@ def chapter_number(naming_scheme: str, paths: click.Path, start: int) -> None:
         start (int): The starting number for the chapter numbering.
     """
 
-    files: list[str] = parse_paths(paths)
+    files: list[str] = _parse_paths(paths)
 
     number: int
     file: str
     for number, file in enumerate(files, start=start):
         new_title = naming_scheme.replace("%n", str(number))
-        update_tag(file, "title", new_title)
+        _update_tag(file, "title", new_title)
 
 
-@cli.command(name="changeauthor")
+@cli.command(name="change-author")
 @click.argument("author_name", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
-def change_author(author_name: str, paths: click.Path) -> None:
-    files: list[str] = parse_paths(paths)
+def change_author(author_name: str, paths: list[str]) -> None:
+    files: list[str] = _parse_paths(paths)
 
     file: str
     for file in files:
-        update_tag(file, "author", author_name)
+        _update_tag(file, "author", author_name)
 
 
-@cli.command(name="changenarrator")
+@cli.command(name="change-narrator")
 @click.argument("narrator_name", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
-def change_narrator(narrator_name: str, paths: click.Path) -> None:
-    files: list[str] = parse_paths(paths)
+def change_narrator(narrator_name: str, paths: list[str]) -> None:
+    files: list[str] = _parse_paths(paths)
 
     file: str
     for file in files:
-        update_tag(file, "composer", narrator_name)
+        _update_tag(file, "composer", narrator_name)
+
 
 def change_tag() -> None:
     raise NotImplementedError
     # TODO Change tag function
+
 
 def combine_files() -> None:
     raise NotImplementedError
