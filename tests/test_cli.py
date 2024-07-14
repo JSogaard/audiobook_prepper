@@ -43,6 +43,16 @@ def test_chapter_number() -> None:
         assert EasyID3(file)["title"] == [f"Chapter {number}"]
 
 
+def test_change_title() -> None:
+    runner = CliRunner()
+    result = runner.invoke(change_title, ["Titly Title", "test_audiobook/*.mp3"])
+    assert result.exit_code == 0
+
+    file: str
+    for file in FILES:
+        assert EasyID3(file)["title"] == ["Titly Title"]
+
+
 def test_change_author() -> None:
     runner = CliRunner()
     result = runner.invoke(
