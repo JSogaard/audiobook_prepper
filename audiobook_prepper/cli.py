@@ -187,9 +187,16 @@ def change_narrator(narrator_name: str, paths: list[str]) -> None:
         _update_tag(file, "composer", narrator_name)
 
 
-def change_tag() -> None:
-    raise NotImplementedError
-    # TODO Change tag function
+@cli.command(name="change-tag")
+@click.argument("tag", type=str, nargs=1)
+@click.argument("value", type=str, nargs=1)
+@click.argument("paths", type=click.Path(), nargs=-1)
+def change_tag(tag: str, value: str, paths: list[str]) -> None:
+    files: list[str] = _parse_paths(paths)
+
+    file: str
+    for file in files:
+        _update_tag(file, tag, value)
 
 
 def combine_files() -> None:

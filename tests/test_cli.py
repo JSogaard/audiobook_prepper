@@ -10,6 +10,7 @@ FILES: list[str] = [
     "./test_audiobook/05.mp3",
 ]
 
+
 def test_number_files() -> None:
     runner = CliRunner()
     result = runner.invoke(
@@ -53,6 +54,7 @@ def test_change_author() -> None:
     for file in FILES:
         assert EasyID3(file)["author"] == ["Author McAuthorface"]
 
+
 def test_change_narrator() -> None:
     runner = CliRunner()
     result = runner.invoke(
@@ -63,3 +65,13 @@ def test_change_narrator() -> None:
     file: str
     for file in FILES:
         assert EasyID3(file)["composer"] == ["Narrator McNarrator"]
+
+
+def test_change_tag() -> None:
+    runner = CliRunner()
+    result = runner.invoke(change_tag, ["composer", "Mozart", "test_audiobook/*.mp3"])
+    assert result.exit_code == 0
+
+    file: str
+    for file in FILES:
+        assert EasyID3(file)["composer"] == ["Mozart"]
