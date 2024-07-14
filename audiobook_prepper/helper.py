@@ -71,12 +71,30 @@ def update_tag(file: str, tag: str, value: str) -> None:
 
 
 def batch_update_tag(files: list[str], tag: str, value: str) -> None:
+    """
+    Update the specified ID3 tag for a batch of files.
+
+    Args:
+        files (list[str]): List of paths to the audio files.
+        tag (str): ID3 tag to update.
+        value (str): New value for the ID3 tag.
+    """
     file: str
     for file in files:
         update_tag(file, tag, value)
 
 
 class Chapter(NamedTuple):
+    """
+    Represents a chapter in an audiobook with its duration,
+    start time and end time.
+
+    Attributes:
+        name (str): The name of the chapter.
+        duration (int): The duration of the chapter in milliseconds.
+        start (int): The start time of the chapter in milliseconds.
+        end (int): The end time of the chapter in milliseconds.
+    """
     name: str
     duration: int
     start: int
@@ -84,6 +102,15 @@ class Chapter(NamedTuple):
 
 
 def get_chapter_list(files: list[str]) -> list[Chapter]:
+    """
+    Generate a list of Chapter objects for the given audio files.
+
+    Args:
+        files (list[str]): List of paths to the audio files.
+
+    Returns:
+        list[Chapter]: List of Chapter objects.
+    """
     chapters: list[Chapter] = []
     playhead: int = 0
 
@@ -111,6 +138,15 @@ def get_chapter_list(files: list[str]) -> list[Chapter]:
 
 
 def get_bitrate(file: str) -> int:
+    """
+    Retrieve the bitrate of the given audio file.
+
+    Args:
+        file (str): Path to the audio file.
+
+    Returns:
+        int: The bitrate of the audio file.
+    """
     try:
         return MP3(file).info.bitrate
     except Exception as e:
@@ -120,6 +156,14 @@ def get_bitrate(file: str) -> int:
 
 
 def concatenate_audio(files: list[str], output: str, bitrate: int) -> None:
+    """
+    Concatenate multiple audio files into a single output file with the specified bitrate.
+
+    Args:
+        files (list[str]): List of paths to the audio files to be concatenated.
+        output (str): Path to save the concatenated output file.
+        bitrate (int): The bitrate for the output file.
+    """
     inputs = [ffmpeg.input(file) for file in files]
     joined = (
         ffmpeg.concat(*inputs, v=0, a=1)

@@ -31,6 +31,12 @@ TAGS: list[str] = [
 @cli.command(name="show-tags")
 @click.argument("paths", type=click.Path(), nargs=-1)
 def show_tags(paths: list[str]) -> None:
+    """
+    Display the ID3 tags of the specified audio files in a table format.
+
+    Args:
+        paths (list[str]): Paths to the files whose tags need to be displayed.
+    """
     files: list[str] = parse_paths(paths)
     table: list[list[str]] = [
         [
@@ -111,7 +117,13 @@ def chapter_number(naming_scheme: str, paths: list[str], start: int) -> None:
 @click.argument("title-name", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
 def change_title(title_name: str, paths: list[str]) -> None:
+    """
+    Change the title tag of each specified file to the given title.
 
+    Args:
+        title_name (str): The new title to set for the files.
+        paths (list[str]): Paths to the files to be updated.
+    """
     batch_update_tag(parse_paths(paths), "title", title_name)
 
 
@@ -119,7 +131,13 @@ def change_title(title_name: str, paths: list[str]) -> None:
 @click.argument("author-name", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
 def change_author(author_name: str, paths: list[str]) -> None:
+    """
+    Change the author tag of each specified file to the given author name.
 
+    Args:
+        author_name (str): The new author name to set for the files.
+        paths (list[str]): Paths to the files to be updated.
+    """
     batch_update_tag(parse_paths(paths), "author", author_name)
 
 
@@ -127,7 +145,13 @@ def change_author(author_name: str, paths: list[str]) -> None:
 @click.argument("narrator-name", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
 def change_narrator(narrator_name: str, paths: list[str]) -> None:
+    """
+    Change the narrator (composer) tag of each specified file to the given narrator name.
 
+    Args:
+        narrator_name (str): The new narrator name to set for the files.
+        paths (list[str]): Paths to the files to be updated.
+    """
     batch_update_tag(parse_paths(paths), "composer", narrator_name)
 
 
@@ -136,7 +160,14 @@ def change_narrator(narrator_name: str, paths: list[str]) -> None:
 @click.argument("value", type=str, nargs=1)
 @click.argument("paths", type=click.Path(), nargs=-1)
 def change_tag(tag: str, value: str, paths: list[str]) -> None:
+    """
+    Change a specified tag of each file to the given value.
 
+    Args:
+        tag (str): The tag to be changed.
+        value (str): The new value for the tag.
+        paths (list[str]): Paths to the files to be updated.
+    """
     batch_update_tag(parse_paths(paths), tag, value)
 
 
@@ -150,7 +181,15 @@ def change_tag(tag: str, value: str, paths: list[str]) -> None:
 def combine_files(
     paths: list[str], use_chapters: bool, output: str, bitrate: int
 ) -> None:
+    """
+    Combine multiple audio files into a single file, with optional chapter markers.
 
+    Args:
+        paths (list[str]): Paths to the files to be combined.
+        use_chapters (bool): Whether to use chapter markers in the output file.
+        output (str): The path to save the combined output file.
+        bitrate (int): The bitrate to use for the output file.
+    """
     files: list[str] = parse_paths(paths)
 
     if not bitrate:
