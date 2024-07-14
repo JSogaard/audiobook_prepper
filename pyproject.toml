@@ -17,6 +17,9 @@ pytest = "^8.2.2"
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
 
+[tool.poetry.scripts]
+audiobook_prepper = "audiobook_prepper.cli:cli"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"

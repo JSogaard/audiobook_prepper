@@ -3,7 +3,7 @@
 *.mp4
 a.out
 */a.out
-audiobook_prepper/test_audiobook/*
+test_audiobook/*
 **/poetry.lock
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,virtualenv,visualstudiocode,windows,linux,macos

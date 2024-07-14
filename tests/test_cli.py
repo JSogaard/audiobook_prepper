@@ -1,6 +1,6 @@
 from click.testing import CliRunner
 from mutagen.easyid3 import EasyID3
-import audiobook_prepper
+from audiobook_prepper import *
 
 FILES: list[str] = [
     "./test_audiobook/01.mp3",
@@ -10,11 +10,10 @@ FILES: list[str] = [
     "./test_audiobook/05.mp3",
 ]
 
-
 def test_number_files() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        audiobook_prepper.number_files,
+        number_files,
         [
             "test_audiobook/*.mp3",
             "--start",
@@ -32,7 +31,7 @@ def test_number_files() -> None:
 def test_chapter_number() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        audiobook_prepper.chapter_number,
+        chapter_number,
         ["Chapter %n", "test_audiobook/*.mp3", "--start", "1"],
     )
     assert result.exit_code == 0
@@ -46,7 +45,7 @@ def test_chapter_number() -> None:
 def test_change_author() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        audiobook_prepper.change_author, ["Author McAuthorface", "test_audiobook/*.mp3"]
+        change_author, ["Author McAuthorface", "test_audiobook/*.mp3"]
     )
     assert result.exit_code == 0
 
@@ -57,7 +56,7 @@ def test_change_author() -> None:
 def test_change_narrator() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        audiobook_prepper.change_narrator, ["Narrator McNarrator", "test_audiobook/*.mp3"]
+        change_narrator, ["Narrator McNarrator", "test_audiobook/*.mp3"]
     )
     assert result.exit_code == 0
 
