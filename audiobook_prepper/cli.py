@@ -188,13 +188,9 @@ def combine_files(
     """
     files: list[str] = parse_paths(paths)
 
-    if not bitrate:
-        bitrate = get_bitrate(files[0])
-
     ffmetadata: str = generate_ffmetadata(files)
 
-    # concatenate_audio(files, output=output, bitrate=bitrate)
-    add_chapters(output, ffmetadata=ffmetadata)
+    concatenate_audio(files, output=output, bitrate=bitrate)
 
 
 if __name__ == "__main__":

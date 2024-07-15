@@ -1,13 +1,13 @@
 import sys
+import subprocess
+from pathlib import Path
 from typing import NamedTuple
-from typing import Any
 from tempfile import NamedTemporaryFile
 import glob
 import click
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3NoHeaderError
+from mutagen.id3._util import ID3NoHeaderError
 from mutagen.mp3 import MP3
-import ffmpeg
 
 
 class NoFileInput(Exception):
@@ -158,7 +158,7 @@ def get_bitrate(file: str) -> int:
         int: The bitrate of the audio file.
     """
     try:
-        return MP3(file).info.bitrate
+        return int(MP3(file).info.bitrate / 1000)  # type: ignore
     except Exception as e:
         sys.exit(
             f"An error occured while processing the file: {file} - {e}\nCould not proceed."
@@ -174,10 +174,30 @@ def concatenate_audio(files: list[str], output: str, bitrate: int) -> None:
         output (str): Path to save the concatenated output file.
         bitrate (int): The bitrate for the output file.
     """
-    inputs = [ffmpeg.input(file) for file in files]
-    joined = (
-        ffmpeg.concat(*inputs, v=0, a=1)
-        .output(output, format="mp4", audio_bitrate=bitrate)
-        .run(overwrite_output=True)
-    )
+    if not bitrate:
+        bitrate = get_bitrate(files[0])
 
+    file_tmp_lines: list[str] = [
+        f"file '{str(Path(file).resolve())}'" for file in files
+    ]
+    file_tmp = NamedTemporaryFile("w+t", suffix=".txt")
+    file_tmp.write("\n".join(file_tmp_lines))
+    file_tmp.flush()
+
+    command: list[str] = [
+        "ffmpeg",
+        "-v",
+        "info",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        file_tmp.name,
+        "-c:a",
+        "aac",
+        "-b:a",
+        f"{bitrate}k",
+        output,
+    ]
+    subprocess.run(command, check=True)
