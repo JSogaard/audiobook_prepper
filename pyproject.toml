@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "audiobook_prepper"
-version = "0.1.0"
+version = "1.0"
 description = ""
 authors = ["Jonatan Søgaard"]
 

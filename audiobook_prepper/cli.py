@@ -2,7 +2,7 @@ import os
 from tempfile import NamedTemporaryFile
 import click
 from mutagen.easyid3 import EasyID3
-from tabulate import tabulate
+from tabulate import tabulate # type:ignore
 from audiobook_prepper.helper import *
 
 

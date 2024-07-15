@@ -180,24 +180,34 @@ def concatenate_audio(files: list[str], output: str, bitrate: int) -> None:
     file_tmp_lines: list[str] = [
         f"file '{str(Path(file).resolve())}'" for file in files
     ]
-    file_tmp = NamedTemporaryFile("w+t", suffix=".txt")
-    file_tmp.write("\n".join(file_tmp_lines))
-    file_tmp.flush()
 
-    command: list[str] = [
-        "ffmpeg",
-        "-v",
-        "info",
-        "-f",
-        "concat",
-        "-safe",
-        "0",
-        "-i",
-        file_tmp.name,
-        "-c:a",
-        "aac",
-        "-b:a",
-        f"{bitrate}k",
-        output,
-    ]
-    subprocess.run(command, check=True)
+    with NamedTemporaryFile("w+t") as files_tmp, NamedTemporaryFile(
+        "w+t"
+    ) as metadata_tmp:
+        files_tmp.write("\n".join(file_tmp_lines))
+        files_tmp.flush()
+
+        metadata_tmp.write(generate_ffmetadata(files))
+        metadata_tmp.flush()
+
+        command: list[str] = [
+            "ffmpeg",
+            "-v",
+            "info",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            files_tmp.name,
+            "-i",
+            metadata_tmp.name,
+            "-map_metadata",
+            "1",
+            "-c:a",
+            "aac",
+            "-b:a",
+            f"{bitrate}k",
+            output,
+        ]
+        subprocess.run(command, check=True)
