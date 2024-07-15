@@ -2,10 +2,10 @@ import os
 import typer
 from mutagen.easyid3 import EasyID3
 from tabulate import tabulate # type:ignore
+from rich.table import Table
 from audiobook_prepper.helper import *
 
 app = typer.Typer()
-
 
 TAGS: list[str] = [
     "title",
@@ -46,15 +46,15 @@ def show_tags(paths: list[str]) -> None:
         try:
             id3: EasyID3 = EasyID3(file)
         except Exception as e:
-            click.echo(f"An error occured while processing the file: {file} - {e}")
+            console.print(f"An error occured while processing the file: {file} - {e}")
             return
 
         for tag in TAGS:
             row.append(id3[tag][0])
         table.append(row)
 
-    click.echo("Give the terminal windows some width to display table properly.")
-    click.echo(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
+    console.print("Give the terminal windows some width to display table properly.")
+    print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 
 @app.command()
@@ -64,7 +64,7 @@ def number_files(paths: list[str], start: int = 1) -> None:
     starting from the specified value.
 
     Args:
-        paths (click.Path): Paths to the files to be updated.
+        paths (str): Paths to the files to be updated.
         start (int): The starting number for the track numbering.
     """
 
@@ -84,7 +84,7 @@ def chapter_number(naming_scheme: str, paths: list[str], start: int = 1) -> None
 
     Args:
         naming_scheme (str): The naming scheme for the title, where '%n' will be replaced by the number.
-        paths (click.Path): Paths to the files to be updated.
+        paths (str): Paths to the files to be updated.
         start (int): The starting number for the chapter numbering.
     """
 

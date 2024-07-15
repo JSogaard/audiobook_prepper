@@ -4,11 +4,12 @@ from pathlib import Path
 from typing import NamedTuple
 from tempfile import NamedTemporaryFile
 import glob
-import click
 from mutagen.easyid3 import EasyID3
 from mutagen.id3._util import ID3NoHeaderError
 from mutagen.mp3 import MP3
+from rich.console import Console
 
+console = Console()
 
 class NoFileInput(Exception):
     pass
@@ -21,7 +22,7 @@ def parse_paths(paths: list[str]) -> list[str]:
     If the paths contain wildcard characters (* or ?), it uses glob to match files.
 
     Args:
-        paths (click.Path): Paths to be parsed.
+        paths (str): Paths to be parsed.
 
     Returns:
         list[str]: Sorted list of file paths.
@@ -64,7 +65,7 @@ def update_tag(file: str, tag: str, value: str) -> None:
         # Create a new EasyID3 object if no header is found
         id3 = EasyID3()
     except Exception as e:
-        click.echo(f"An error occured while processing the file: {file} - {e}")
+        console.print(f"An error occured while processing the file: {file} - {e}", style="bold bright_red")
         return
 
     id3[tag] = value
