@@ -13,6 +13,7 @@ black = "^24.4.2"
 pytest = "^8.2.2"
 tabulate = "^0.9.0"
 ffmpeg-python = "^0.2.0"
+typer = "^0.12.3"
 
 [tool.poetry.dev-dependencies]
 
@@ -20,7 +21,7 @@ ffmpeg-python = "^0.2.0"
 ipykernel = "^6.29.5"
 
 [tool.poetry.scripts]
-audiobook_prepper = "audiobook_prepper.cli:cli"
+audiobook_prepper = "audiobook_prepper.cli:app"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

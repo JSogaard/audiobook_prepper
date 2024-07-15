@@ -1,16 +1,10 @@
 import os
-from tempfile import NamedTemporaryFile
-import click
+import typer
 from mutagen.easyid3 import EasyID3
 from tabulate import tabulate # type:ignore
 from audiobook_prepper.helper import *
 
-
-@click.group()
-def cli() -> None:
-    """Tool to prepare audiobook files."""
-    pass
-    # TODO Read up on Click groups
+app = typer.Typer()
 
 
 TAGS: list[str] = [
@@ -24,8 +18,7 @@ TAGS: list[str] = [
 ]
 
 
-@cli.command(name="show-tags")
-@click.argument("paths", type=click.Path(), nargs=-1)
+@app.command()
 def show_tags(paths: list[str]) -> None:
     """
     Display the ID3 tags of the specified audio files in a table format.
@@ -64,10 +57,8 @@ def show_tags(paths: list[str]) -> None:
     click.echo(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
 
 
-@cli.command(name="number")
-@click.argument("paths", type=click.Path(), nargs=-1)
-@click.option("-s", "--start", type=int, default=1, show_default=True)
-def number_files(paths: list[str], start: int) -> None:
+@app.command()
+def number_files(paths: list[str], start: int = 1) -> None:
     """
     Update the track number tag of each file with a sequential number,
     starting from the specified value.
@@ -85,11 +76,8 @@ def number_files(paths: list[str], start: int) -> None:
         update_tag(file, "tracknumber", str(number))
 
 
-@cli.command(name="chapter-number")
-@click.argument("naming-scheme", type=str, nargs=1)
-@click.argument("paths", type=click.Path(), nargs=-1)
-@click.option("-s", "--start", type=int, default=1, show_default=True)
-def chapter_number(naming_scheme: str, paths: list[str], start: int) -> None:
+@app.command()
+def chapter_number(naming_scheme: str, paths: list[str], start: int = 1) -> None:
     """
     Update the title tag of each file with a name based on a naming scheme,
     replacing '%n' with a sequential number, starting from specified value.
@@ -109,9 +97,7 @@ def chapter_number(naming_scheme: str, paths: list[str], start: int) -> None:
         update_tag(file, "title", new_title)
 
 
-@cli.command(name="change-title")
-@click.argument("title-name", type=str, nargs=1)
-@click.argument("paths", type=click.Path(), nargs=-1)
+@app.command()
 def change_title(title_name: str, paths: list[str]) -> None:
     """
     Change the title tag of each specified file to the given title.
@@ -123,9 +109,7 @@ def change_title(title_name: str, paths: list[str]) -> None:
     batch_update_tag(parse_paths(paths), "title", title_name)
 
 
-@cli.command(name="change-author")
-@click.argument("author-name", type=str, nargs=1)
-@click.argument("paths", type=click.Path(), nargs=-1)
+@app.command()
 def change_author(author_name: str, paths: list[str]) -> None:
     """
     Change the author tag of each specified file to the given author name.
@@ -137,9 +121,7 @@ def change_author(author_name: str, paths: list[str]) -> None:
     batch_update_tag(parse_paths(paths), "author", author_name)
 
 
-@cli.command(name="change-narrator")
-@click.argument("narrator-name", type=str, nargs=1)
-@click.argument("paths", type=click.Path(), nargs=-1)
+@app.command()
 def change_narrator(narrator_name: str, paths: list[str]) -> None:
     """
     Change the narrator (composer) tag of each specified file to the given narrator name.
@@ -151,10 +133,7 @@ def change_narrator(narrator_name: str, paths: list[str]) -> None:
     batch_update_tag(parse_paths(paths), "composer", narrator_name)
 
 
-@cli.command(name="change-tag")
-@click.argument("tag", type=str, nargs=1)
-@click.argument("value", type=str, nargs=1)
-@click.argument("paths", type=click.Path(), nargs=-1)
+@app.command()
 def change_tag(tag: str, value: str, paths: list[str]) -> None:
     """
     Change a specified tag of each file to the given value.
@@ -167,18 +146,12 @@ def change_tag(tag: str, value: str, paths: list[str]) -> None:
     batch_update_tag(parse_paths(paths), tag, value)
 
 
-@cli.command(name="combine-files")
-@click.argument("paths", type=click.Path(), nargs=-1)
-@click.option("-c", "--use-chapters", type=bool, default=True, show_default=True)
-@click.option(
-    "-o", "--output", type=click.Path(), default="output.m4b", show_default=True
-)
-@click.option("-b", "--bitrate", type=int, default=None)
+@app.command()
 def combine_files(
-    paths: list[str], use_chapters: bool, output: str, bitrate: int
+    paths: list[str], output: str = "output.m4b", bitrate: int = 64
 ) -> None:
     """
-    Combine multiple audio files into a single file, with optional chapter markers.
+    Combine multiple audio files into a single file, with chapter markers.
 
     Args:
         paths (list[str]): Paths to the files to be combined.
@@ -194,4 +167,4 @@ def combine_files(
 
 
 if __name__ == "__main__":
-    cli()
+    app()

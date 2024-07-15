@@ -1,4 +1,4 @@
-from click.testing import CliRunner
+from typer.testing import CliRunner
 from mutagen.easyid3 import EasyID3
 from audiobook_prepper import *
 
@@ -14,8 +14,9 @@ FILES: list[str] = [
 def test_number_files() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        number_files,
+        app,
         [
+            "number-files",
             "test_audiobook/*.mp3",
             "--start",
             "2",
@@ -32,8 +33,8 @@ def test_number_files() -> None:
 def test_chapter_number() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        chapter_number,
-        ["Chapter %n", "test_audiobook/*.mp3", "--start", "1"],
+        app,
+        ["chapter-number", "Chapter %n", "test_audiobook/*.mp3", "--start", "1"],
     )
     assert result.exit_code == 0
 
@@ -45,7 +46,7 @@ def test_chapter_number() -> None:
 
 def test_change_title() -> None:
     runner = CliRunner()
-    result = runner.invoke(change_title, ["Titly Title", "test_audiobook/*.mp3"])
+    result = runner.invoke(app, ["change-title", "Titly Title", "test_audiobook/*.mp3"])
     assert result.exit_code == 0
 
     file: str
@@ -56,7 +57,7 @@ def test_change_title() -> None:
 def test_change_author() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        change_author, ["Author McAuthorface", "test_audiobook/*.mp3"]
+        app, ["change-author", "Author McAuthorface", "test_audiobook/*.mp3"]
     )
     assert result.exit_code == 0
 
@@ -68,7 +69,7 @@ def test_change_author() -> None:
 def test_change_narrator() -> None:
     runner = CliRunner()
     result = runner.invoke(
-        change_narrator, ["Narrator McNarrator", "test_audiobook/*.mp3"]
+        app, ["change-narrator", "Narrator McNarrator", "test_audiobook/*.mp3"]
     )
     assert result.exit_code == 0
 
@@ -79,7 +80,7 @@ def test_change_narrator() -> None:
 
 def test_change_tag() -> None:
     runner = CliRunner()
-    result = runner.invoke(change_tag, ["composer", "Mozart", "test_audiobook/*.mp3"])
+    result = runner.invoke(app, ["change-tag", "composer", "Mozart", "test_audiobook/*.mp3"])
     assert result.exit_code == 0
 
     file: str
