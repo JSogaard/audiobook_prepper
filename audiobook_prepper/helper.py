@@ -1,6 +1,7 @@
 import sys
 from typing import NamedTuple
 from typing import Any
+from tempfile import NamedTemporaryFile
 import glob
 import click
 from mutagen.easyid3 import EasyID3
@@ -95,13 +96,14 @@ class Chapter(NamedTuple):
         start (int): The start time of the chapter in milliseconds.
         end (int): The end time of the chapter in milliseconds.
     """
+
     name: str
     duration: int
     start: int
     end: int
 
 
-def get_chapter_list(files: list[str]) -> list[Chapter]:
+def generate_ffmetadata(files: list[str]) -> str:
     """
     Generate a list of Chapter objects for the given audio files.
 
@@ -111,7 +113,12 @@ def get_chapter_list(files: list[str]) -> list[Chapter]:
     Returns:
         list[Chapter]: List of Chapter objects.
     """
-    chapters: list[Chapter] = []
+    ffmetadata: str = (
+        f""";FFMETADATA
+title=Empty
+artist=Empty
+genre=AudioBook"""
+    )
     playhead: int = 0
 
     for file in files:
@@ -123,18 +130,21 @@ def get_chapter_list(files: list[str]) -> list[Chapter]:
                 f"An error occured while processing the file: {file} - {e}\nCould not proceed."
             )
 
+        name: str = id3["title"][0]
         duration: int = int(mp3.info.length * 1000)
-        chapters.append(
-            Chapter(
-                name=id3["title"][0],
-                duration=duration,
-                start=playhead,
-                end=playhead + duration,
-            )
-        )
-        playhead += duration + 1
+        start: int = playhead
+        end: int = playhead + duration
 
-    return chapters
+        ffmetadata += f"""
+[CHAPTER]
+TIMEBASE=1/1000
+START={start}
+END={end}
+title={name}"""
+
+        playhead = end
+
+    return ffmetadata
 
 
 def get_bitrate(file: str) -> int:
@@ -170,3 +180,4 @@ def concatenate_audio(files: list[str], output: str, bitrate: int) -> None:
         .output(output, format="mp4", audio_bitrate=bitrate)
         .run(overwrite_output=True)
     )
+

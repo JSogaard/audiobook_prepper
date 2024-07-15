@@ -1,11 +1,7 @@
 import os
-from typing import NamedTuple
-from pprint import pformat
+from tempfile import NamedTemporaryFile
 import click
-import glob
 from mutagen.easyid3 import EasyID3
-from mutagen.mp3 import MP3
-from mutagen.id3 import ID3NoHeaderError
 from tabulate import tabulate
 from audiobook_prepper.helper import *
 
@@ -194,9 +190,11 @@ def combine_files(
 
     if not bitrate:
         bitrate = get_bitrate(files[0])
-    concatenate_audio(files, output, bitrate)
 
-    # TODO Finish files function
+    ffmetadata: str = generate_ffmetadata(files)
+
+    # concatenate_audio(files, output=output, bitrate=bitrate)
+    add_chapters(output, ffmetadata=ffmetadata)
 
 
 if __name__ == "__main__":
