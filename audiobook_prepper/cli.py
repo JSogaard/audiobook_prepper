@@ -26,10 +26,9 @@ def show_tags(paths: list[str]) -> None:
     Args:
         paths (list[str]): Paths to the files whose tags need to be displayed.
     """
-    files: list[str] = parse_paths(paths)
-    table: list[list[str]] = [
-        [
-            "File",
+    table = Table(show_lines=True)
+    table.add_column("Title", style="bold bright_blue")
+    columns: list[str] = [
             "Title",
             "Album",
             "Author",
@@ -38,7 +37,10 @@ def show_tags(paths: list[str]) -> None:
             "Disc",
             "Track",
         ]
-    ]
+    for col in columns:
+        table.add_column(col)    
+    
+    files: list[str] = parse_paths(paths)
     file: str
     row: list[str]
     for file in files:
@@ -51,10 +53,10 @@ def show_tags(paths: list[str]) -> None:
 
         for tag in TAGS:
             row.append(id3[tag][0])
-        table.append(row)
+        table.add_row(*row)
 
     console.print("Give the terminal windows some width to display table properly.")
-    print(tabulate(table, headers="firstrow", tablefmt="fancy_grid"))
+    console.print(table)
 
 
 @app.command()
